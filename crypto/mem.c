@@ -73,8 +73,24 @@ OPENSSL_MSVC_PRAGMA(warning(pop))
 #define OPENSSL_MALLOC_PREFIX 8
 
 
+#undef realloc
+static OPENSSL_alloc_func *g_alloc_func = NULL;
+#define realloc CB_realloc
+void OPENSSL_set_alloc_func(OPENSSL_alloc_func* f) { g_alloc_func = f; }
+
+void *CB_malloc(size_t s) {
+  return g_alloc_func ? g_alloc_func(NULL, s) : malloc(s);
+}
+void CB_free(void *p) {
+  if (g_alloc_func)
+    g_alloc_func(p, 0);
+  else
+    free(p);
+}
+
+
 void *OPENSSL_malloc(size_t size) {
-  void *ptr = malloc(size + OPENSSL_MALLOC_PREFIX);
+  void *ptr = CB_malloc(size + OPENSSL_MALLOC_PREFIX);
   if (ptr == NULL) {
     return NULL;
   }
@@ -93,7 +109,7 @@ void OPENSSL_free(void *orig_ptr) {
 
   size_t size = *(size_t *)ptr;
   OPENSSL_cleanse(ptr, size + OPENSSL_MALLOC_PREFIX);
-  free(ptr);
+  CB_free(ptr);
 }
 
 void *OPENSSL_realloc(void *orig_ptr, size_t new_size) {

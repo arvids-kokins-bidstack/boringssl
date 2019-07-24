@@ -75,6 +75,10 @@ extern "C" {
 // unless stated otherwise.
 
 
+typedef void *OPENSSL_alloc_func(void *p, size_t s);
+OPENSSL_EXPORT void OPENSSL_set_alloc_func(OPENSSL_alloc_func* f);
+
+
 // OPENSSL_malloc acts like a regular |malloc|.
 OPENSSL_EXPORT void *OPENSSL_malloc(size_t size);
 

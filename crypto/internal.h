@@ -732,6 +732,9 @@ static inline void *OPENSSL_memset(void *dst, int c, size_t n) {
 void BORINGSSL_FIPS_abort(void) __attribute__((noreturn));
 #endif
 
+void *CB_malloc(size_t s);
+void CB_free(void *p);
+
 #if defined(__cplusplus)
 }  // extern C
 #endif
